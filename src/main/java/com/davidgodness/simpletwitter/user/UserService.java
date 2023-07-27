@@ -1,7 +1,5 @@
 package com.davidgodness.simpletwitter.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -12,25 +10,33 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    private final Log logger = LogFactory.getLog(UserService.class);
-
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public void registerUser(UserRequestBody body) throws Exception {
-        if (idNameIsExist(body.idName())) {
-            logger.warn("idName:" + body.idName() + " has been registered");
-            throw new Exception("idName has been registered");
+    public User register(UserRequestBody body) {
+        if (idNameIsPresent(body.idName())) {
+            throw new UserExistException(body.idName());
         }
-        addUser(body);
+       return addUser(body);
     }
 
-    public Boolean idNameIsExist(String idName) {
-        return userRepository.findFirstByIdName(idName) != null;
+    public void unregister(Integer id) {
+        if (idIsEmpty(id)) {
+            throw new UserNotFoundException(id);
+        }
+        deleteUser(id);
     }
 
-    public void addUser(UserRequestBody body) {
+    public Boolean idNameIsPresent(String idName) {
+        return userRepository.findFirstByIdName(idName).isPresent();
+    }
+
+    public Boolean idIsEmpty(Integer id) {
+        return userRepository.findById(id).isEmpty();
+    }
+
+    public User addUser(UserRequestBody body) {
         User newUser = new User();
 
         newUser.setEmail(body.email());
@@ -43,10 +49,14 @@ public class UserService {
         newUser.setUpdatedAt(new Timestamp(now));
         newUser.setLastLoginAt(new Timestamp(now));
 
-        userRepository.save(newUser);
+        return userRepository.save(newUser);
     }
 
     public List<User> getUsers() {
         return userRepository.findAll();
+    }
+
+    public void deleteUser(Integer id) {
+        userRepository.deleteById(id);
     }
 }

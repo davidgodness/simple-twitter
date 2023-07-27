@@ -19,11 +19,12 @@ public class UserController {
     }
 
     @PostMapping
-    public void addUser(@RequestBody UserRequestBody body) {
-        try {
-            userService.registerUser(body);
-        } catch (Exception e) {
-            return;
-        }
+    public User addUser(@RequestBody UserRequestBody body) {
+        return userService.register(body);
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public void deleteUser(@PathVariable Integer id) {
+        userService.unregister(id);
     }
 }
