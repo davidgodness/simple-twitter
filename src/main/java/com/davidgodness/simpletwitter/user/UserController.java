@@ -1,5 +1,6 @@
 package com.davidgodness.simpletwitter.user;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +20,13 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody UserRequestBody body) {
-        return userService.register(body);
+        return userService.register(body).orElseThrow(() -> new UserExistException(body.idName()));
     }
 
     @DeleteMapping(path = "/{id}")
     public void deleteUser(@PathVariable Integer id) {
-        userService.unregister(id);
+        userService.deleteUser(id);
     }
 }

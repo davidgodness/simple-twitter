@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -14,18 +15,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User register(UserRequestBody body) {
-        if (idNameIsPresent(body.idName())) {
-            throw new UserExistException(body.idName());
-        }
-       return addUser(body);
-    }
+    public Optional<User> register(UserRequestBody body) {
+        User user = null;
 
-    public void unregister(Integer id) {
-        if (idIsEmpty(id)) {
-            throw new UserNotFoundException(id);
+        if (!idNameIsPresent(body.idName())) {
+            user = addUser(body);
         }
-        deleteUser(id);
+
+        return Optional.ofNullable(user);
     }
 
     public Boolean idNameIsPresent(String idName) {
@@ -58,5 +55,9 @@ public class UserService {
 
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    public Optional<User> getUserByEmailAndPassword(String email, String password) {
+        return userRepository.findFirstByEmailAndPassword(email, password);
     }
 }
