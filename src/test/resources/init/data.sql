@@ -1,0 +1,2 @@
+insert into users (email, id_name, name, password, created_at, updated_at, last_login_at) values ('zhang_dawei_cool@yeah.net', 'zhangdawei', 'Zhang DaWei', '123456', '2023-08-02 12:12:12', '2023-08-02 12:12:12', '2023-08-02 12:12:12');
+insert into users (email, id_name, name, password, created_at, updated_at, last_login_at) values ('daaniloveyou', 'davidchang', 'David Chang', '123456', '2023-08-01 12:12:12', '2023-08-01 12:12:12', '2023-08-01 12:12:12');

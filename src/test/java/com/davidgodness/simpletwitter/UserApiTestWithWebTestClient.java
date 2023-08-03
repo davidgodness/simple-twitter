@@ -9,30 +9,13 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserApiTest {
+public class UserApiTestWithWebTestClient {
     @Autowired
     private WebTestClient client;
-
     @Test
     public void testGetUsers() {
-        client.get().uri("/users").accept(MediaType.APPLICATION_JSON)
-                .exchange()
+        client.get().uri("/users").exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON);
-    }
-
-    @Test
-    public void testRegisterUserWithIdNameDuplicate() {
-        //TODO
-    }
-
-    @Test
-    public void testRegisterUserWithSuccess() {
-        //TODO
-    }
-
-    @Test
-    public void testUnRegisterUser() {
-        //TODO
     }
 }
