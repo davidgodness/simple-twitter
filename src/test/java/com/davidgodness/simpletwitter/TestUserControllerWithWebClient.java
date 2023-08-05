@@ -9,7 +9,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class WebClientUserControllerTest {
+public class TestUserControllerWithWebClient {
     @Autowired
     private WebTestClient client;
     @Test

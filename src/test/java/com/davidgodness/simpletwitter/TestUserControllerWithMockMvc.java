@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.*;
         @Sql(value = "classpath:empty/reset.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
         @Sql(value = "classpath:init/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 })
-public class MockMvcUserControllerTest {
+public class TestUserControllerWithMockMvc {
     @Autowired
     private MockMvc mockMvc;
 

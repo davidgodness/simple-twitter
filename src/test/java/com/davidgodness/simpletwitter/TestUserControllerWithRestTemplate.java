@@ -13,7 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RestTemplateUserControllerTest {
+public class TestUserControllerWithRestTemplate {
     @Autowired
     private TestRestTemplate restTemplate;
 
