@@ -29,10 +29,6 @@ public class UserService {
         return userRepository.findFirstByIdName(idName).isPresent();
     }
 
-    public Boolean idIsEmpty(Integer id) {
-        return userRepository.findById(id).isEmpty();
-    }
-
     public User addUser(UserRequestBody body) {
         User newUser = new User();
 
@@ -54,7 +50,11 @@ public class UserService {
     }
 
     public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return;
+        }
+        throw new UserNotFoundException(id);
     }
 
     public Optional<User> getUserByEmailAndPassword(String email, String password) {
