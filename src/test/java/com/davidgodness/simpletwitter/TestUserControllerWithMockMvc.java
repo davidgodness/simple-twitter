@@ -7,19 +7,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,16 +37,30 @@ public class TestUserControllerWithMockMvc {
     private UserRepository userRepository;
 
     @Test
-    public void testGetUsers() throws Exception {
+    public void testGetUsersDefaultPageAndSortCreatedTime() throws Exception {
         mockMvc.perform(get("/users"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[1].id").value(2))
-                .andExpect(jsonPath("$.[0].idName").value("zhangdawei"))
-                .andExpect(jsonPath("$.[1].idName").value("davidchang"));
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$.[0].id").value(3))
+                .andExpect(jsonPath("$.[1].id").value(1))
+                .andExpect(jsonPath("$.[2].id").value(2))
+                .andExpect(jsonPath("$.[0].idName").value("baby"))
+                .andExpect(jsonPath("$.[1].idName").value("zhangdawei"))
+                .andExpect(jsonPath("$.[2].idName").value("davidchang"));
+    }
+
+    @Test
+    public void testGetUsersPageAndSort() throws Exception {
+        mockMvc.perform(get("/users?page=1&size=1&sort=idName,desc"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].idName").value("davidchang"));
     }
 
     @Test
@@ -65,14 +81,23 @@ public class TestUserControllerWithMockMvc {
 
         String expectedIdName = context.read("$.idName");
 
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        MockHttpServletResponse response = mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isMap())
-                .andExpect(jsonPath("$.idName").value(expectedIdName));
+                .andReturn().getResponse();
 
-        assertThat(userRepository.findAll()).hasSize(3);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON.toString());
+        assertThat(response.getHeader("Location")).isNotNull();
+
+        URI location = URI.create(response.getHeader("Location"));
+
+        mockMvc.perform(get(location)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$").isMap())
+                                .andExpect(jsonPath("$.idName").value(expectedIdName));
+
+
+        assertThat(userRepository.findAll()).hasSize(4);
     }
 
     @Test
@@ -88,6 +113,6 @@ public class TestUserControllerWithMockMvc {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertThat(userRepository.findAll()).hasSize(1);
+        assertThat(userRepository.findAll()).hasSize(2);
     }
 }

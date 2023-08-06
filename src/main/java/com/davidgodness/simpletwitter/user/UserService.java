@@ -1,5 +1,9 @@
 package com.davidgodness.simpletwitter.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -45,8 +49,12 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public Page<User> getUsers(Pageable pageable) {
+        return userRepository.findAll(PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.DESC, "createdAt"))
+        ));
     }
 
     public void deleteUser(Integer id) {
@@ -59,5 +67,9 @@ public class UserService {
 
     public Optional<User> getUserByEmailAndPassword(String email, String password) {
         return userRepository.findFirstByEmailAndPassword(email, password);
+    }
+
+    public Optional<User> getUserById(Integer id) {
+        return userRepository.findById(id);
     }
 }
