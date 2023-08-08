@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MockMvc;
@@ -114,5 +115,24 @@ public class TestUserControllerWithMockMvc {
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.findAll()).hasSize(2);
+    }
+
+    @Test
+    public void shouldAnyoneCanAccessHomePage() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void needAuthenticateWhenAccessProtectedResources() throws Exception {
+        mockMvc.perform(get("/protected"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithUserDetails("zhangdawei")
+    public void shouldSuccessWhenAccessProtectedResources() throws Exception {
+        mockMvc.perform(get("/protected"))
+                .andExpect(status().isOk());
     }
 }
