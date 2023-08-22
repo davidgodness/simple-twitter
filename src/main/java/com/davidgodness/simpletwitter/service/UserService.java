@@ -1,5 +1,10 @@
-package com.davidgodness.simpletwitter.user;
+package com.davidgodness.simpletwitter.service;
 
+import com.davidgodness.simpletwitter.dto.RegisterRequestBody;
+import com.davidgodness.simpletwitter.exception.UserEmailExistException;
+import com.davidgodness.simpletwitter.exception.UserIdNameExistsException;
+import com.davidgodness.simpletwitter.model.User;
+import com.davidgodness.simpletwitter.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,42 +12,51 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final PasswordEncoder encoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
-    public Optional<User> register(UserRequestBody body) {
-        User user = null;
-
-        if (!idNameIsPresent(body.idName())) {
-            user = addUser(body);
+    public User register(RegisterRequestBody body) throws Exception {
+        if (idNameExists(body.idName())) {
+            throw new UserIdNameExistsException();
         }
 
-        return Optional.ofNullable(user);
+        if (emailExists(body.email())) {
+            throw new UserEmailExistException();
+        }
+
+        return addUser(body);
     }
 
-    public Boolean idNameIsPresent(String idName) {
-        return userRepository.findFirstByIdName(idName).isPresent();
+    public Boolean idNameExists(String idName) {
+        return userRepository.existsByIdName(idName);
     }
 
-    public User addUser(UserRequestBody body) {
+    public Boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public User addUser(RegisterRequestBody body) {
         User newUser = new User();
 
         newUser.setEmail(body.email());
         newUser.setIdName(body.idName());
         newUser.setName(body.name());
-        newUser.setPassword(body.password());
+        newUser.setPassword(encoder.encode(body.password()));
 
         long now = new Date().getTime();
         newUser.setCreatedAt(new Timestamp(now));
@@ -60,25 +74,13 @@ public class UserService implements UserDetailsService {
         ));
     }
 
-    public void deleteUser(Integer id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return;
-        }
-        throw new UserNotFoundException(id);
-    }
-
-    public Optional<User> getUserByEmailAndPassword(String email, String password) {
-        return userRepository.findFirstByEmailAndPassword(email, password);
-    }
-
     public Optional<User> getUserById(Integer id) {
         return userRepository.findById(id);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findFirstByIdName(username)
-                .orElseThrow(() -> new UserNotFoundException(username + " not found"));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("email:" + email + " not found"));
     }
 }

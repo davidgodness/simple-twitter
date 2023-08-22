@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### RSA Private Key ###
+src/main/resources/private.pem

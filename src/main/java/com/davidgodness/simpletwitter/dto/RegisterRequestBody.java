@@ -1,6 +1,6 @@
-package com.davidgodness.simpletwitter.user;
+package com.davidgodness.simpletwitter.dto;
 
-public record UserRequestBody(
+public record RegisterRequestBody(
         String email,
         String idName,
         String name,

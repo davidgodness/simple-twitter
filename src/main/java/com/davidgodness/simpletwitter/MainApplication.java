@@ -13,13 +13,4 @@ public class MainApplication {
 		SpringApplication.run(MainApplication.class, args);
 	}
 
-	@GetMapping("/")
-	public String home() {
-		return "Welcome";
-	}
-
-	@GetMapping("/protected")
-	public String getProtected() {
-		return "Protected Resources";
-	}
 }
