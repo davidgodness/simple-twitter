@@ -34,7 +34,11 @@ public class AuthController {
     public String login(@RequestBody LoginRequestBody body) {
         Authentication unauthenticated = UsernamePasswordAuthenticationToken.unauthenticated(body.email(), body.password());
 
-        return jwtService.token(authenticationManager.authenticate(unauthenticated));
+        Authentication authenticated = authenticationManager.authenticate(unauthenticated);
+
+        userService.login(authenticated);
+
+        return jwtService.token(authenticated);
     }
 
     @PostMapping("/register")

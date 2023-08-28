@@ -1,5 +1,6 @@
 package com.davidgodness.simpletwitter.service;
 
+import com.davidgodness.simpletwitter.dto.LoginRequestBody;
 import com.davidgodness.simpletwitter.dto.RegisterRequestBody;
 import com.davidgodness.simpletwitter.exception.UserEmailExistException;
 import com.davidgodness.simpletwitter.exception.UserIdNameExistsException;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
@@ -40,6 +43,11 @@ public class UserService implements UserDetailsService {
         }
 
         return addUser(body);
+    }
+
+    public void login(Authentication authentication) {
+        userRepository.findByEmail(authentication.getName())
+                .ifPresent(user -> user.setLastLoginAt(Timestamp.from(Instant.now())));
     }
 
     public Boolean idNameExists(String idName) {

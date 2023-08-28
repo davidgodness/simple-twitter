@@ -27,14 +27,17 @@ public class Tweet {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    @Column(name = "parent_id")
-    private Integer parentId;
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Tweet parentTweet;
 
-    @Column(name = "forward_tweet_id")
-    private Integer forwardTweetId;
+    @ManyToOne
+    @JoinColumn(name = "forward_tweet_id")
+    private Tweet forwardTweet;
 
-    @Column(name = "reference_tweet_id")
-    private Integer referenceTweetId;
+    @ManyToOne
+    @JoinColumn(name = "reference_tweet_id")
+    private Tweet referenceTweet;
 
     @Column(name = "created_at")
     @CreationTimestamp
