@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -24,17 +26,27 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Column(name = "email", unique = true)
     private String email;
+
     @Column(name = "id_name", unique = true)
     private String idName;
+
     private String name;
+
     private String password;
+
     @Column(name = "created_at")
+    @CreationTimestamp
     private Timestamp createdAt;
+
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private Timestamp updatedAt;
+
     @Column(name = "last_login_at")
+    @CreationTimestamp
     private Timestamp lastLoginAt;
 
     @Override

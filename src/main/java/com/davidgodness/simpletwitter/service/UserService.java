@@ -58,11 +58,6 @@ public class UserService implements UserDetailsService {
         newUser.setName(body.name());
         newUser.setPassword(encoder.encode(body.password()));
 
-        long now = new Date().getTime();
-        newUser.setCreatedAt(new Timestamp(now));
-        newUser.setUpdatedAt(new Timestamp(now));
-        newUser.setLastLoginAt(new Timestamp(now));
-
         return userRepository.save(newUser);
     }
 
